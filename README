@@ -1,0 +1,9 @@
+Updating OSM files with FOSM OSC changeset files.
+
+update_osm.sh : Bash script to apply FOSM changesets to an OSM file.
+
+osmconvert.patch : patchfile to http://m.m.i24.cc/osmconvert.c
+		version 0.21 to allow handleing FOSM changesets.
+
+Changelog : Description of what patchfile contains.
+
