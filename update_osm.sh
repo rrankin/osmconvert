@@ -57,7 +57,7 @@ do
       if [ $DIR -nt $HERE/o5c/$DIR.o5c ]
       then
   	osmconvert  \
-  	    --merge-versions  --out-o5c \
+  	    --in-josm --merge-versions  --out-o5c \
   	    $DIR/*.osc.gz \
               > $HERE/o5cwork/$DIR.o5c 2>> $HERE/log
   	ret=$?
