@@ -1,5 +1,5 @@
 #!/bin/bash
-# update-osm.sh 06-09-2011
+# update-osm.sh 14-09-2011
 # Copyright Roy Rankin 2011 
 # rrankin AT ihug.com.au
 #
@@ -17,8 +17,7 @@
 # all the distilled changeset files in o5cwork are moved into the
 # o5c directory tree.
 #
-# log file contains the stderr output from osmconvert and starts fresh 
-# on each run.
+# log file contains the stderr output from the programs.
 
 # Base of OSM file name to which the changesets are applied.
 # Actual name ends with .osm.gz
@@ -27,47 +26,45 @@ OSM=australia
 BOUND=-b="112.7,-44.0,154.0,-9.8"
 # Full path to location of changesets
 CHANGESETS=~/changesets/minute-replicate/
-#
-# Do work in directory where changeset directories are,
-# after remembering where we are now
-#
-HERE=`pwd`
-cp /dev/null log
 
-cd $CHANGESETS
-for LDIR in `ls -d [0-9][0-9][0-9]`
+date >> log
+
+for LLDIR in `ls -d $CHANGESETS/[0-9][0-9][0-9]`
 do
   NEW=0
+  LDIR=`basename $LLDIR`
   #
   # Make sure required directories exist
   #
-  if ! [ -d $HERE/o5c/$LDIR ]
+  if ! [ -d o5c/$LDIR ]
   then
-      mkdir -p $HERE/o5c/$LDIR
+      mkdir -p o5c/$LDIR
   fi
-  if ! [ -d $HERE/o5cwork/$LDIR ]
+  if ! [ -d o5cwork/$LDIR ]
   then
-      mkdir -p $HERE/o5cwork/$LDIR
+      mkdir -p o5cwork/$LDIR
   fi
   #
-  # distile up to 1000 change sets in a directory into one file
+  # distile(merge) up to 1000 change sets in a directory into one file
+  # Uses oscmerge.pl to merge and convert output changeset to order
+  # expected by osmconvert.
   #
-  for DIR in `ls -d $LDIR/[0-9][0-9][0-9]`
+  for FDIR in `ls -d $LLDIR/[0-9][0-9][0-9]`
   do
-      if [ $DIR -nt $HERE/o5c/$DIR.o5c ]
+      DIR=`basename $FDIR`
+      if [ $FDIR -nt o5c/$LDIR/$DIR.o5c ]
       then
-  	osmconvert  \
-  	    --in-josm --merge-versions  --out-o5c \
-  	    $DIR/*.osc.gz \
-              > $HERE/o5cwork/$DIR.o5c 2>> $HERE/log
+	zcat $FDIR/*.osc.gz | oscmerge.pl \
+  	| osmconvert  --merge-versions  --out-o5c - \
+              > o5cwork/$LDIR/$DIR.o5c 2>> log
   	ret=$?
-  	if [ $ret -ne 0 ] && [ $ret -ne 91 ] && [ $ret -ne 92 ] 
+  	if [ $ret -ne 0 ] 
   	then
-  		rm -f $HERE/o5cwork/$DIR.o5c
-  		echo "abort dir=$DIR "
+  		rm -f o5cwork/$LDIR/$DIR.o5c
+  		echo "abort dir=$LDIR/$DIR "
   		exit $ret
   	fi
-         echo "processed $DIR returned $ret"
+         echo "processed $LDIR/$DIR returned $ret"
          NEW=1
       fi
   done
@@ -76,22 +73,22 @@ do
   #
   if  [ $NEW -eq 1 ]
   then
-     echo "Modifying $HERE/$OSM.osm.gz"
-     cp $HERE/$OSM.osm.gz $HERE/${OSM}_old.osm.gz
+     echo "Modifying $OSM.osm.gz"
+     cp $OSM.osm.gz ${OSM}_old.osm.gz
      osmconvert   \
   	$BOUND  --merge-versions  \
-  	$HERE/${OSM}_old.osm.gz $HERE/o5cwork/$LDIR/*.o5c 2>> $HERE/log \
-  	| gzip > $HERE/$OSM.osm.gz
+  	${OSM}_old.osm.gz o5cwork/$LDIR/*.o5c 2>> log \
+  	| gzip > $OSM.osm.gz
   
       ret=${PIPESTATUS[0]}
-      if [ $ret -ne 0 ] && [ $ret -ne 91 ] && [ $ret -ne 92 ] 
+      if [ $ret -ne 0 ]
       then
-  	cp -f $HERE/${OSM}_old.osm.gz $HERE/$OSM.osm.gz
+  	cp -f ${OSM}_old.osm.gz $OSM.osm.gz
   	echo "abort build osm $ret"
   	exit $ret
       fi
       echo "built $OSM.osm.gz $ret"
-      mv -f $HERE/o5cwork/$LDIR/*.o5c $HERE/o5c/$LDIR
+      mv -f o5cwork/$LDIR/*.o5c o5c/$LDIR
   else
      echo "nothing to do in $LDIR"
   fi
