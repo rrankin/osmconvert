@@ -13,11 +13,11 @@
 # 	which is sent to standard output.
 #	typical usage would be 
 #		zcat *.osc.gz | oscmerge.pl | gzip > all.osc.gz
-#		zcat *.osc.gz | oscmerge.pl | osmconvert --out-o5c > all.o5c
+#		zcat *.osc.gz | oscmerge.pl | osmconvert --out-o5c - > all.o5c
 #	or
 #		oscmerge.pl *.osc > all.osc
 #
-my $version = "0.1 2011-09-14";
+my $version = "0.1a 2011-09-14";
 my ($node, %node, %node_mode);  
 my ($way, %way, %way_mode);  
 my ($relation, %relation, %relation_mode);  

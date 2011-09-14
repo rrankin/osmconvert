@@ -55,7 +55,7 @@ do
       if [ $FDIR -nt o5c/$LDIR/$DIR.o5c ]
       then
 	zcat $FDIR/*.osc.gz | oscmerge.pl \
-  	| osmconvert  --merge-versions  --out-o5c - \
+  	| osmconvert  --out-o5c - \
               > o5cwork/$LDIR/$DIR.o5c 2>> log
   	ret=$?
   	if [ $ret -ne 0 ] 
