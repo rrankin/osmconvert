@@ -2,9 +2,16 @@ Updating OSM files with FOSM OSC changeset files.
 
 update_osm.sh : Bash script to apply FOSM changesets to an OSM file.
 
-oscmerge.pl : Convert one or more FOSM OSC changeset file(s) and output in sorted order
-		required by osmconvert. Will merge files if given multiple files are feed from
-		zcat to stdin. Used in update_osm.sh
+oscmerge.pl : Convert one or more FOSM OSC changeset file(s) and output 
+		in sorted order required by osmconvert. Will merge files 
+		if given multiple files are feed from zcat to stdin. 
+		Used in update_osm.sh
+
+update-mirror.sh : Download new FOSM changeset (requires next-url.pl) and 
+		optionally add  to PG mapnik database (requires osm2pgsql).
+
+next-url.pl : Inspect a local minute-replicate mirror and return the URL 
+		of the next diff file.
 
 osmconvert.patch : Removed, http://m.m.i24.cc/osmconvert.c
 		version 0.3 has fixes for handling FOSM changesets.
